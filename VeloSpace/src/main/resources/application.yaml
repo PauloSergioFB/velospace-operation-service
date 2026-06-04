@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: VeloSpace
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: oracle.jdbc.OracleDriver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+    show-sql: true
+
+    properties:
+      hibernate:
+        "[format_sql]": true
+
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
+jwt:
+  secret: ${JWT_SECRET}
+
+logging:
+  level:
+    root: INFO
+    "[br.com.fiap.javaadv.VeloSpace]": DEBUG
+    "[org.hibernate.SQL]": DEBUG
+    "[org.hibernate.type.descriptor.sql.BasicBinder]": TRACE
+    "[org.springframework.jdbc.core]": TRACE
+    "[org.springframework.transaction]": TRACE
+
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n"
+
+  file:
+    name: ./logs/application.log
+
+springdoc:
+  enable-hateoas: false
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+    display-request-duration: true
+    filter: true
+    

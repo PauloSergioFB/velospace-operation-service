@@ -1,0 +1,24 @@
+## Arquivo de pipeline do Azure DevOps para sincronizar o repositório do Azure com o GitHub
+
+trigger:
+  - main
+
+variables:
+  - group: github-sync
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - checkout: self
+    persistCredentials: true
+    fetchDepth: 0
+
+  - script: |
+      git config --global user.email "azuredevops@local"
+      git config --global user.name "Azure DevOps"   
+      
+      git remote add github https://$(GITHUB_USER):$(GITHUB_TOKEN)@github.com/devpedrosena1/Global-Solution-VeloSpace-Fiap.git
+      
+      git push github refs/remotes/origin/main:refs/heads/main --force
+    displayName: 'Sync Azure Repo para GitHub'
