@@ -17,13 +17,11 @@ public class Satellite {
     @Column(name = "satellite_id")
     private @Getter @Setter Long satelliteId;
 
-    @ManyToOne
     @JoinColumn(name = "shipper_id", nullable = false)
-    private @Getter @Setter Shipper shipper;
+    private @Getter @Setter Long shipperId;
 
-    @ManyToOne
     @JoinColumn(name = "launch_provider_id", nullable = false)
-    private @Getter @Setter LaunchProvider launchProvider;
+    private @Getter @Setter Long launchProviderId;
 
     @Column(name = "name", nullable = false, length = 55)
     private @Getter @Setter String name;

@@ -45,10 +45,7 @@ public class CreateSatelliteDTO {
         }
 
         return Satellite.builder()
-                .launchProvider(
-                        LaunchProvider.builder()
-                                .launchProviderId(dto.getLaunchProviderId())
-                                .build())
+                .launchProviderId(dto.getLaunchProviderId())
                 .name(dto.getName())
                 .height(dto.getHeight())
                 .width(dto.getWidth())

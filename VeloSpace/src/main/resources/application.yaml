@@ -1,3 +1,6 @@
+server:
+  port: 8081
+
 spring:
   application:
     name: VeloSpace
@@ -20,6 +23,15 @@ spring:
 
   jackson:
     property-naming-strategy: SNAKE_CASE
+  
+  activemq:
+    broker-url: ${ACTIVEMQ_BROKER_URL}
+    user: ${ACTIVEMQ_USER}
+    password: ${ACTIVEMQ_PASSWORD}
+
+  data:
+     mongodb:
+      uri: ${MONGODB_URI}
 
 jwt:
   secret: ${JWT_SECRET}

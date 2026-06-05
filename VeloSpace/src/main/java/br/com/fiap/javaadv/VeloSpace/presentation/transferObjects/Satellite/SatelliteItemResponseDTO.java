@@ -17,7 +17,7 @@ public record SatelliteItemResponseDTO(
         }
         return SatelliteItemResponseDTO.builder()
                 .satelliteId(satellite.getSatelliteId())
-                .launchProviderId(satellite.getLaunchProvider().getLaunchProviderId())
+                .launchProviderId(satellite.getLaunchProviderId())
                 .name(satellite.getName())
                 .status(SatelliteStatusResponseDTO.from(satellite.getSatelliteStatus()))
                 .build();

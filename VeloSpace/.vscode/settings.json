@@ -1,5 +1,6 @@
 {
     "cSpell.words": [
+        "activemq",
         "cnpj",
         "csrf",
         "datasource",
@@ -8,7 +9,9 @@
         "jackson",
         "javaadv",
         "jdbc",
+        "nullable",
         "springdoc",
-        "springframework"
+        "springframework",
+        "temurin"
     ]
 }

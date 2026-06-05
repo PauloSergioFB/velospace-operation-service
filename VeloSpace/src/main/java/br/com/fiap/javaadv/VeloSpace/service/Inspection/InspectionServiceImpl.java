@@ -2,23 +2,19 @@ package br.com.fiap.javaadv.VeloSpace.service.Inspection;
 
 import br.com.fiap.javaadv.VeloSpace.infrastructure.enums.InspectionResult;
 import br.com.fiap.javaadv.VeloSpace.infrastructure.exceptions.BusinessRuleException;
-import br.com.fiap.javaadv.VeloSpace.infrastructure.exceptions.ForbiddenException;
 import br.com.fiap.javaadv.VeloSpace.infrastructure.exceptions.NotFoundException;
 import br.com.fiap.javaadv.VeloSpace.infrastructure.security.JwtUserData;
 import br.com.fiap.javaadv.VeloSpace.model.Satellite;
-import br.com.fiap.javaadv.VeloSpace.model.Operator;
 import br.com.fiap.javaadv.VeloSpace.model.SatelliteStatus;
 import br.com.fiap.javaadv.VeloSpace.model.Inspection;
 import br.com.fiap.javaadv.VeloSpace.model.repository.SatelliteRepository;
 import br.com.fiap.javaadv.VeloSpace.model.repository.InspectionRepository;
-import br.com.fiap.javaadv.VeloSpace.service.Operator.OperatorService;
 import br.com.fiap.javaadv.VeloSpace.service.Satellite.SatelliteService;
 import br.com.fiap.javaadv.VeloSpace.service.SatelliteStatus.SatelliteStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -28,19 +24,21 @@ public class InspectionServiceImpl implements InspectionService<Inspection, Long
 
     private final SatelliteRepository satelliteRepository;
 
-    private final OperatorService<Operator, Long> operatorService;
+    // private final OperatorService<Operator, Long> operatorService;
 
     private final SatelliteService<Satellite, Long> satelliteService;
 
     private final SatelliteStatusService<SatelliteStatus, Long> satelliteStatusService;
 
+    // TO-DO: Ver isso
     private void validateOperatorRelated(JwtUserData authUser, Satellite satellite) {
-        Operator operator = operatorService.findByIdOrThrow(authUser.userId());
+        // Operator operator = operatorService.findByIdOrThrow(authUser.userId());
 
-        if (!Objects.equals(operator.getLaunchProvider(), satellite.getLaunchProvider())) {
-            throw new ForbiddenException(
-                    "Você não possui permissão para acessar esta inspeção.");
-        }
+        // if (!Objects.equals(operator.getLaunchProvider(),
+        // satellite.getLaunchProvider())) {
+        // throw new ForbiddenException(
+        // "Você não possui permissão para acessar esta inspeção.");
+        // }
     }
 
     private void validateCurrentSatelliteStatus(

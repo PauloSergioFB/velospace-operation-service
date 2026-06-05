@@ -26,8 +26,8 @@ public record SatelliteResponseDTO(
         }
         return SatelliteResponseDTO.builder()
                 .satelliteId(satellite.getSatelliteId())
-                .shipperId(satellite.getShipper().getShipperId())
-                .launchProviderId(satellite.getLaunchProvider().getLaunchProviderId())
+                .shipperId(satellite.getShipperId())
+                .launchProviderId(satellite.getLaunchProviderId())
                 .name(satellite.getName())
                 .height(satellite.getHeight())
                 .width(satellite.getWidth())

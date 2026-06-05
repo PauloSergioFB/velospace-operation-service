@@ -8,19 +8,19 @@ import br.com.fiap.javaadv.VeloSpace.infrastructure.exceptions.BusinessRuleExcep
 import br.com.fiap.javaadv.VeloSpace.infrastructure.exceptions.FieldValidationException;
 import br.com.fiap.javaadv.VeloSpace.infrastructure.exceptions.ForbiddenException;
 import br.com.fiap.javaadv.VeloSpace.infrastructure.exceptions.NotFoundException;
+import br.com.fiap.javaadv.VeloSpace.infrastructure.mongo.document.LaunchProviderRef;
+import br.com.fiap.javaadv.VeloSpace.infrastructure.mongo.document.OperatorRef;
+import br.com.fiap.javaadv.VeloSpace.infrastructure.mongo.document.ShipperRef;
+import br.com.fiap.javaadv.VeloSpace.infrastructure.mongo.service.LaunchProviderRefService;
+import br.com.fiap.javaadv.VeloSpace.infrastructure.mongo.service.OperatorRefService;
+import br.com.fiap.javaadv.VeloSpace.infrastructure.mongo.service.ShipperRefService;
 import br.com.fiap.javaadv.VeloSpace.infrastructure.security.JwtUserData;
-import br.com.fiap.javaadv.VeloSpace.model.LaunchProvider;
 import br.com.fiap.javaadv.VeloSpace.model.Satellite;
 import br.com.fiap.javaadv.VeloSpace.model.SatellitePriority;
-import br.com.fiap.javaadv.VeloSpace.model.Operator;
 import br.com.fiap.javaadv.VeloSpace.model.SatelliteStatus;
-import br.com.fiap.javaadv.VeloSpace.model.Shipper;
 import br.com.fiap.javaadv.VeloSpace.model.repository.SatelliteRepository;
-import br.com.fiap.javaadv.VeloSpace.service.LaunchProvider.LaunchProviderService;
-import br.com.fiap.javaadv.VeloSpace.service.Operator.OperatorService;
 import br.com.fiap.javaadv.VeloSpace.service.SatellitePriority.SatellitePriorityService;
 import br.com.fiap.javaadv.VeloSpace.service.SatelliteStatus.SatelliteStatusService;
-import br.com.fiap.javaadv.VeloSpace.service.Shipper.ShipperService;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 
@@ -30,7 +30,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -38,11 +37,11 @@ public class SatelliteServiceImpl implements SatelliteService<Satellite, Long> {
 
     private final SatelliteRepository satelliteRepository;
 
-    private final ShipperService<Shipper, Long> shipperService;
+    private final ShipperRefService shipperRefService;
 
-    private final OperatorService<Operator, Long> operatorService;
+    private final OperatorRefService operatorRefService;
 
-    private final LaunchProviderService<LaunchProvider, Long> launchProviderService;
+    private final LaunchProviderRefService launchProviderRefService;
 
     private final SatelliteStatusService<SatelliteStatus, Long> satelliteStatusService;
 
@@ -51,18 +50,19 @@ public class SatelliteServiceImpl implements SatelliteService<Satellite, Long> {
     private DeliveryFeignClient deliveryClient;
 
     private void validateShipperOwner(JwtUserData authUser, Satellite satellite) {
-        Long shipperUserAccountId = satellite.getShipper().getUserAccount().getUserAccountId();
+        Long shipperUserAccountId = shipperRefService
+                .findByIdOrThrow(satellite.getShipperId()).getUserAccountId();
 
-        if (!Objects.equals(authUser.userId(), shipperUserAccountId)) {
+        if (!shipperUserAccountId.equals(authUser.userId())) {
             throw new ForbiddenException(
                     "Você não possui permissão para acessar este satélite.");
         }
     }
 
     private void validateOperatorRelated(JwtUserData authUser, Satellite satellite) {
-        Operator operator = operatorService.findByIdOrThrow(authUser.userId());
+        OperatorRef operator = operatorRefService.findByUserAccountIdOrThrow(authUser.userId());
 
-        if (!Objects.equals(operator.getLaunchProvider(), satellite.getLaunchProvider())) {
+        if (!operator.getLaunchProviderId().equals(satellite.getLaunchProviderId())) {
             throw new ForbiddenException(
                     "Você não possui permissão para acessar este satélite.");
         }
@@ -155,13 +155,17 @@ public class SatelliteServiceImpl implements SatelliteService<Satellite, Long> {
             String direction,
             JwtUserData authUser) {
 
-        launchProviderService.findById(launchProviderId, authUser);
+        LaunchProviderRef launchProviderRef = launchProviderRefService.findByIdOrThrow(launchProviderId);
+        if (!authUser.userId().equals(launchProviderRef.getUserAccountId())) {
+            throw new ForbiddenException(
+                    "Você não possui permissão para acessar esta provedora de lançamento.");
+        }
 
         Sort sort = direction.equalsIgnoreCase("desc")
                 ? Sort.by(sortBy.name()).descending()
                 : Sort.by(sortBy.name()).ascending();
 
-        return satelliteRepository.findByLaunchProvider_LaunchProviderId(
+        return satelliteRepository.findByLaunchProviderId(
                 launchProviderId, PageRequest.of(page, items, sort));
     }
 
@@ -174,27 +178,31 @@ public class SatelliteServiceImpl implements SatelliteService<Satellite, Long> {
             String direction,
             JwtUserData authUser) {
 
-        shipperService.findById(shipperId, authUser);
+        ShipperRef shipperRef = shipperRefService.findByIdOrThrow(shipperId);
+        if (!authUser.userId().equals(shipperRef.getUserAccountId())) {
+            throw new ForbiddenException(
+                    "Você não possui permissão para acessar esta provedora de lançamento.");
+        }
 
         Sort sort = direction.equalsIgnoreCase("desc")
                 ? Sort.by(sortBy.name()).descending()
                 : Sort.by(sortBy.name()).ascending();
 
-        return satelliteRepository.findByShipper_ShipperId(
+        return satelliteRepository.findByShipperId(
                 shipperId, PageRequest.of(page, items, sort));
     }
 
     @Override
     public Satellite create(Satellite satellite, JwtUserData authUser) {
-        Shipper shipper = shipperService.findByUserAccountIdOrThrow(authUser.userId());
+        ShipperRef shipperRef = shipperRefService.findByUserAccountIdOrThrow(authUser.userId());
 
-        LaunchProvider launchProvider = launchProviderService.findByIdOrThrow(
-                satellite.getLaunchProvider().getLaunchProviderId());
+        LaunchProviderRef launchProviderRef = launchProviderRefService
+                .findByIdOrThrow(satellite.getLaunchProviderId());
 
         SatelliteStatus status = satelliteStatusService.getRequiredByCode("PENDING_APPROVAL");
 
-        satellite.setShipper(shipper);
-        satellite.setLaunchProvider(launchProvider);
+        satellite.setShipperId(shipperRef.getShipperId());
+        satellite.setLaunchProviderId(launchProviderRef.getLaunchProviderId());
         satellite.setSatelliteStatus(status);
 
         return satelliteRepository.save(satellite);
@@ -254,8 +262,8 @@ public class SatelliteServiceImpl implements SatelliteService<Satellite, Long> {
                 "PENDING_APPROVAL",
                 "Só é possível alterar um satélite que está aguardando aprovação.");
 
-        LaunchProvider launchProvider = launchProviderService.findByIdOrThrow(
-                satellite.getLaunchProvider().getLaunchProviderId());
+        LaunchProviderRef launchProviderRef = launchProviderRefService
+                .findByIdOrThrow(satellite.getLaunchProviderId());
 
         existing.setName(satellite.getName());
         existing.setHeight(satellite.getHeight());
@@ -263,7 +271,7 @@ public class SatelliteServiceImpl implements SatelliteService<Satellite, Long> {
         existing.setLength(satellite.getLength());
         existing.setWeight(satellite.getWeight());
         existing.setLaunchJustification(satellite.getLaunchJustification());
-        existing.setLaunchProvider(launchProvider);
+        existing.setLaunchProviderId(launchProviderRef.getLaunchProviderId());
 
         return satelliteRepository.save(existing);
     }

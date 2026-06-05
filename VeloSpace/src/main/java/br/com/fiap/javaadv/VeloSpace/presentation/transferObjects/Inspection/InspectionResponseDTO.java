@@ -26,7 +26,7 @@ public record InspectionResponseDTO(
         return InspectionResponseDTO.builder()
                 .inspectionId(inspection.getInspectionId())
                 .satelliteId(inspection.getSatellite().getSatelliteId())
-                .operatorId(inspection.getOperator().getOperatorId())
+                .operatorId(inspection.getOperatorId())
                 .measuredHeight(inspection.getMeasuredHeight())
                 .measuredWidth(inspection.getMeasuredWidth())
                 .measuredLength(inspection.getMeasuredLength())

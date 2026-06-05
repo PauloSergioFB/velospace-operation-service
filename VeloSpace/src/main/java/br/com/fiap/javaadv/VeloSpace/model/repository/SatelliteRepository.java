@@ -10,12 +10,12 @@ import java.util.List;
 
 public interface SatelliteRepository extends JpaRepository<Satellite, Long> {
 
-    List<Satellite> findByShipper_ShipperId(Long shipperId);
+    List<Satellite> findByShipperId(Long shipperId);
 
-    List<Satellite> findByLaunchProvider_LaunchProviderId(Long launchProviderId);
+    Page<Satellite> findByShipperId(Long shipperId, Pageable pageable);
 
-    Page<Satellite> findByLaunchProvider_LaunchProviderId(Long launchProviderId, Pageable pageable);
+    List<Satellite> findByLaunchProviderId(Long launchProviderId);
 
-    Page<Satellite> findByShipper_ShipperId(Long shipperId, Pageable pageable);
+    Page<Satellite> findByLaunchProviderId(Long launchProviderId, Pageable pageable);
 
 }

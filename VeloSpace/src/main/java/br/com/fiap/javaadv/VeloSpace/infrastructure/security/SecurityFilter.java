@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import br.com.fiap.javaadv.VeloSpace.infrastructure.enums.Role;
-import br.com.fiap.javaadv.VeloSpace.model.repository.OperatorRepository;
+import br.com.fiap.javaadv.VeloSpace.infrastructure.mongo.repository.OperatorRefRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,7 +24,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     private final JwtHelper jwtHelper;
 
-    private final OperatorRepository operatorRepository;
+    private final OperatorRefRepository operatorRefRepository;
 
     @Override
     protected void doFilterInternal(
@@ -51,9 +51,9 @@ public class SecurityFilter extends OncePerRequestFilter {
                 boolean allowedForUnapprovedOperator = path.equals("/api/v1/operators/me") ||
                         path.matches("/api/v1/operators/\\d+/reapply");
 
-                boolean approved = operatorRepository
-                        .findByUserAccount_UserAccountId(userData.userId())
-                        .map(operator -> operator.getOperatorStatus().getCode().equals("APPROVED"))
+                boolean approved = operatorRefRepository
+                        .findByUserAccountId(userData.userId())
+                        .map(operator -> operator.getOperatorStatusCode().equals("APPROVED"))
                         .orElse(false);
 
                 if (!approved && !allowedForUnapprovedOperator) {

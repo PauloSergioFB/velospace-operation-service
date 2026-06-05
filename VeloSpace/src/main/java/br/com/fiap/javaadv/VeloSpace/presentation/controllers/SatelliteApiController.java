@@ -1,5 +1,17 @@
 package br.com.fiap.javaadv.VeloSpace.presentation.controllers;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import br.com.fiap.javaadv.VeloSpace.infrastructure.security.JwtUserData;
 import br.com.fiap.javaadv.VeloSpace.model.Satellite;
 import br.com.fiap.javaadv.VeloSpace.presentation.transferObjects.Satellite.ApprovalSatelliteDTO;
@@ -11,10 +23,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/satellites")
@@ -42,7 +50,8 @@ public class SatelliteApiController {
             @AuthenticationPrincipal JwtUserData authUser) {
 
         Satellite newSatellite = satelliteService.create(CreateSatelliteDTO.toEntity(dto), authUser);
-        return new ResponseEntity<>(SatelliteResponseDTO.from(newSatellite), HttpStatus.CREATED);
+        return new ResponseEntity<>(SatelliteResponseDTO.from(newSatellite),
+                HttpStatus.CREATED);
     }
 
     @PostMapping("/{id}/approval")
@@ -69,12 +78,14 @@ public class SatelliteApiController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar um Satellite por ID", description = "Recebe os dados atualizados de um Satellite e o ID do Satellite a ser atualizado, e realiza a atualização no sistema.")
+
     public ResponseEntity<SatelliteResponseDTO> updateById(
             @PathVariable Long id,
             @Valid @RequestBody CreateSatelliteDTO dto,
             @AuthenticationPrincipal JwtUserData authUser) {
 
-        Satellite updated = satelliteService.updateById(id, CreateSatelliteDTO.toEntity(dto), authUser);
+        Satellite updated = satelliteService.updateById(id,
+                CreateSatelliteDTO.toEntity(dto), authUser);
         return ResponseEntity.ok(SatelliteResponseDTO.from(updated));
     }
 

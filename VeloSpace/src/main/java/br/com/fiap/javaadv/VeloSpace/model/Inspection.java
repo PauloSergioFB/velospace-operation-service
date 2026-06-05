@@ -24,9 +24,8 @@ public class Inspection {
     @JoinColumn(name = "satellite_id", nullable = false)
     private @Getter @Setter Satellite satellite;
 
-    @ManyToOne
     @JoinColumn(name = "operator_id", nullable = false)
-    private @Getter @Setter Operator operator;
+    private @Getter @Setter Long operatorId;
 
     @Column(name = "measured_height", nullable = false)
     private @Getter @Setter Integer measuredHeight;
