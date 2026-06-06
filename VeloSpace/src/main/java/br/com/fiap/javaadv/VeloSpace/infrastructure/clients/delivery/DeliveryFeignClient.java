@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import br.com.fiap.javaadv.VeloSpace.infrastructure.clients.delivery.transferObjects.TrackResponseDTO;
 
-@FeignClient(name = "deliveryClient", url = "delivery-simulation-api-production.up.railway.app")
+@FeignClient(name = "deliveryClient", url = "${DELIVERY_API_URL}")
 public interface DeliveryFeignClient {
 
         @GetMapping("/track/{code}")

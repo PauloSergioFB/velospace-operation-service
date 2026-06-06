@@ -9,7 +9,6 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
-import br.com.fiap.javaadv.VeloSpace.infrastructure.enums.Role;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -26,8 +25,7 @@ public class JwtHelper {
             return Optional.of(JwtUserData.builder()
                     .userId(decode.getClaim("userId").asLong())
                     .email(decode.getSubject())
-                    .role(Role.valueOf(
-                            decode.getClaim("role").asString()))
+                    .role(decode.getClaim("role").asString())
                     .build());
         } catch (JWTVerificationException ex) {
             return Optional.empty();

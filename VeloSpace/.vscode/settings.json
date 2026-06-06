@@ -9,6 +9,7 @@
         "jackson",
         "javaadv",
         "jdbc",
+        "mongodb",
         "nullable",
         "springdoc",
         "springframework",

@@ -10,7 +10,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import br.com.fiap.javaadv.VeloSpace.infrastructure.enums.Role;
 import br.com.fiap.javaadv.VeloSpace.infrastructure.mongo.repository.OperatorRefRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -41,11 +40,10 @@ public class SecurityFilter extends OncePerRequestFilter {
         String token = authHeader.substring("Bearer ".length());
         Optional<JwtUserData> user = jwtHelper.validateToken(token);
 
-        System.out.println(user);
         if (user.isPresent()) {
             JwtUserData userData = user.get();
 
-            if (userData.role() == Role.OPERATOR) {
+            if ("OPERATOR".equals(userData.role())) {
                 String path = request.getRequestURI();
 
                 boolean allowedForUnapprovedOperator = path.equals("/api/v1/operators/me") ||

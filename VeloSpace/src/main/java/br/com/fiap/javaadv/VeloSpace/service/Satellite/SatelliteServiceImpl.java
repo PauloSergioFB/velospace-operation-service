@@ -1,8 +1,14 @@
 package br.com.fiap.javaadv.VeloSpace.service.Satellite;
 
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+
 import br.com.fiap.javaadv.VeloSpace.infrastructure.clients.delivery.DeliveryFeignClient;
 import br.com.fiap.javaadv.VeloSpace.infrastructure.clients.delivery.transferObjects.TrackResponseDTO;
-import br.com.fiap.javaadv.VeloSpace.infrastructure.enums.Role;
 import br.com.fiap.javaadv.VeloSpace.infrastructure.enums.SatelliteSortField;
 import br.com.fiap.javaadv.VeloSpace.infrastructure.exceptions.BusinessRuleException;
 import br.com.fiap.javaadv.VeloSpace.infrastructure.exceptions.FieldValidationException;
@@ -23,13 +29,6 @@ import br.com.fiap.javaadv.VeloSpace.service.SatellitePriority.SatellitePriority
 import br.com.fiap.javaadv.VeloSpace.service.SatelliteStatus.SatelliteStatusService;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -69,12 +68,12 @@ public class SatelliteServiceImpl implements SatelliteService<Satellite, Long> {
     }
 
     private void validateAccess(JwtUserData authUser, Satellite satellite) {
-        if (authUser.role().equals(Role.SHIPPER)) {
+        if (authUser.role().equals("SHIPPER")) {
             validateShipperOwner(authUser, satellite);
             return;
         }
 
-        if (authUser.role().equals(Role.OPERATOR)) {
+        if (authUser.role().equals("OPERATOR")) {
             validateOperatorRelated(authUser, satellite);
             return;
         }
