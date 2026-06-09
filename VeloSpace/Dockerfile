@@ -4,11 +4,11 @@ COPY src /app/src
 COPY pom.xml /app
 
 WORKDIR /app
-RUN mvn clean install
+RUN mvn clean package -DskipTests
 
 FROM eclipse-temurin:21-jre-alpine
 
-COPY --from=build /app/target/app.jar /app/app.jar
+COPY --from=build /app/target/VeloSpace-0.0.1-SNAPSHOT.jar /app/app.jar
 
 WORKDIR /app
 

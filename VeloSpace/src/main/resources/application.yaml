@@ -10,6 +10,13 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: oracle.jdbc.OracleDriver
+    
+    hikari:
+      maximum-pool-size: 3
+      minimum-idle: 1
+      idle-timeout: 30000
+      max-lifetime: 600000
+      connection-timeout: 20000
 
   jpa:
     hibernate:
@@ -26,13 +33,16 @@ spring:
   data:
      mongodb:
       uri: ${MONGODB_URI}
-
+      
 delivery:
   api:
     url: ${DELIVERY_API_URL}
 
 jwt:
   secret: ${JWT_SECRET}
+
+internal:
+  api-key: ${INTERNAL_API_KEY}
 
 logging:
   level:

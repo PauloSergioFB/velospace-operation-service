@@ -2,6 +2,8 @@ package br.com.fiap.javaadv.VeloSpace.service.Satellite;
 
 import java.util.List;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -46,7 +48,7 @@ public class SatelliteServiceImpl implements SatelliteService<Satellite, Long> {
 
     private final SatellitePriorityService<SatellitePriority, Long> satellitePriorityService;
 
-    private DeliveryFeignClient deliveryClient;
+    private final DeliveryFeignClient deliveryClient;
 
     private void validateShipperOwner(JwtUserData authUser, Satellite satellite) {
         Long shipperUserAccountId = shipperRefService
@@ -98,7 +100,11 @@ public class SatelliteServiceImpl implements SatelliteService<Satellite, Long> {
         }
     }
 
-    private void changeStatus(Satellite satellite, String statusCode) {
+    private void changeStatus(Satellite satellite, String trackStatus) {
+        String statusCode = "DELIVERED".equals(trackStatus)
+                ? "PENDING_INSPECTION"
+                : trackStatus;
+
         SatelliteStatus status = satelliteStatusService.getRequiredByCode(statusCode);
         satellite.setSatelliteStatus(status);
         satelliteRepository.save(satellite);
@@ -131,6 +137,7 @@ public class SatelliteServiceImpl implements SatelliteService<Satellite, Long> {
     }
 
     @Override
+    @Cacheable(value = "satellites", key = "#id")
     public Satellite findByIdOrThrow(Long id) {
         return satelliteRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
@@ -151,14 +158,7 @@ public class SatelliteServiceImpl implements SatelliteService<Satellite, Long> {
             int page,
             int items,
             SatelliteSortField sortBy,
-            String direction,
-            JwtUserData authUser) {
-
-        LaunchProviderRef launchProviderRef = launchProviderRefService.findByIdOrThrow(launchProviderId);
-        if (!authUser.userId().equals(launchProviderRef.getUserAccountId())) {
-            throw new ForbiddenException(
-                    "Você não possui permissão para acessar esta provedora de lançamento.");
-        }
+            String direction) {
 
         Sort sort = direction.equalsIgnoreCase("desc")
                 ? Sort.by(sortBy.name()).descending()
@@ -174,14 +174,7 @@ public class SatelliteServiceImpl implements SatelliteService<Satellite, Long> {
             int page,
             int items,
             SatelliteSortField sortBy,
-            String direction,
-            JwtUserData authUser) {
-
-        ShipperRef shipperRef = shipperRefService.findByIdOrThrow(shipperId);
-        if (!authUser.userId().equals(shipperRef.getUserAccountId())) {
-            throw new ForbiddenException(
-                    "Você não possui permissão para acessar esta provedora de lançamento.");
-        }
+            String direction) {
 
         Sort sort = direction.equalsIgnoreCase("desc")
                 ? Sort.by(sortBy.name()).descending()
@@ -192,6 +185,7 @@ public class SatelliteServiceImpl implements SatelliteService<Satellite, Long> {
     }
 
     @Override
+    @CacheEvict(value = "satellites", allEntries = true)
     public Satellite create(Satellite satellite, JwtUserData authUser) {
         ShipperRef shipperRef = shipperRefService.findByUserAccountIdOrThrow(authUser.userId());
 
@@ -208,6 +202,7 @@ public class SatelliteServiceImpl implements SatelliteService<Satellite, Long> {
     }
 
     @Override
+    @CacheEvict(value = "satellites", key = "#id")
     public void approval(Long id, boolean approved, Long satellitePriorityId, JwtUserData authUser) {
         Satellite satellite = findByIdOrThrow(id);
 
@@ -232,6 +227,7 @@ public class SatelliteServiceImpl implements SatelliteService<Satellite, Long> {
     }
 
     @Override
+    @CacheEvict(value = "satellites", key = "#id")
     public void addTrackingCode(Long id, String trackingCode, JwtUserData authUser) {
         Satellite satellite = findByIdOrThrow(id);
 
@@ -251,6 +247,7 @@ public class SatelliteServiceImpl implements SatelliteService<Satellite, Long> {
     }
 
     @Override
+    @CacheEvict(value = "satellites", key = "#id")
     public Satellite updateById(Long id, Satellite satellite, JwtUserData authUser) {
         Satellite existing = findByIdOrThrow(id);
 
@@ -276,6 +273,7 @@ public class SatelliteServiceImpl implements SatelliteService<Satellite, Long> {
     }
 
     @Override
+    @CacheEvict(value = "satellites", key = "#id")
     public void deleteById(Long id, JwtUserData authUser) {
         Satellite satellite = findByIdOrThrow(id);
 
@@ -294,6 +292,7 @@ public class SatelliteServiceImpl implements SatelliteService<Satellite, Long> {
     }
 
     @Override
+    @CacheEvict(value = "satellites", key = "#satellite.satelliteId")
     public void updateTracking(Satellite satellite) {
         List<String> deliveryStatusCode = List.of(
                 "AWAITING_DISPATCH", "IN_TRANSIT");

@@ -1,16 +1,22 @@
 {
     "cSpell.words": [
         "activemq",
+        "classpath",
         "cnpj",
         "csrf",
         "datasource",
+        "Dskip",
         "fiap",
+        "gemini",
+        "genai",
         "hateoas",
+        "hikari",
         "jackson",
         "javaadv",
         "jdbc",
         "mongodb",
         "nullable",
+        "Sats",
         "springdoc",
         "springframework",
         "temurin"

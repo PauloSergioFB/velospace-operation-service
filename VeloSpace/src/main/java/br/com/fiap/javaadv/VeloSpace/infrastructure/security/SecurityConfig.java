@@ -17,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final InternalApiKeyFilter internalApiKeyFilter;
+
     private final SecurityFilter securityFilter;
 
     @Bean
@@ -33,76 +35,25 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/swagger-ui/**")
                         .permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/refresh").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/shippers").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/launch-providers").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/launch-providers").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/operators").permitAll()
+
+                        .requestMatchers("/internal/**").permitAll()
+
                         .requestMatchers(HttpMethod.GET, "/api/v1/satellite-priorities").permitAll()
 
-                        .requestMatchers(HttpMethod.GET, "/api/v1/shippers/me")
-                        .hasRole("SHIPPER")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/shippers/{id}")
-                        .hasRole("SHIPPER")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/shippers/{id}/hateoas")
-                        .hasRole("SHIPPER")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/shippers/{id}/satellites")
-                        .hasRole("SHIPPER")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/shippers/{id}")
-                        .hasRole("SHIPPER")
-                        .requestMatchers(HttpMethod.PATCH, "/api/v1/shippers/{id}/password")
-                        .hasRole("SHIPPER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/shippers/{id}")
-                        .hasRole("SHIPPER")
-
-                        .requestMatchers(HttpMethod.GET, "/api/v1/launch-providers/me")
-                        .hasRole("LAUNCH_PROVIDER")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/launch-providers/{id}")
-                        .hasRole("LAUNCH_PROVIDER")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/launch-providers/{id}/operators")
-                        .hasRole("LAUNCH_PROVIDER")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/launch-providers/{id}/satellites")
-                        .hasRole("LAUNCH_PROVIDER")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/launch-providers/{id}")
-                        .hasRole("LAUNCH_PROVIDER")
-                        .requestMatchers(HttpMethod.PATCH, "/api/v1/launch-providers/{id}/password")
-                        .hasRole("LAUNCH_PROVIDER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/launch-providers/{id}")
-                        .hasRole("LAUNCH_PROVIDER")
-
-                        .requestMatchers(HttpMethod.GET, "/api/v1/launch-providers/me")
-                        .hasRole("OPERATOR")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/operators/{id}")
-                        .hasAnyRole("OPERATOR", "LAUNCH_PROVIDER")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/operators/{id}")
-                        .hasRole("OPERATOR")
-                        .requestMatchers(HttpMethod.PATCH, "/api/v1/operators/{id}/password")
-                        .hasRole("OPERATOR")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/operators/{id}")
-                        .hasRole("OPERATOR")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/operators/{id}/approval")
-                        .hasRole("LAUNCH_PROVIDER")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/operators/{id}/reapply")
-                        .hasRole("OPERATOR")
-
-                        .requestMatchers(HttpMethod.POST, "/api/v1/satellites")
-                        .hasRole("SHIPPER")
                         .requestMatchers(HttpMethod.POST, "/api/v1/satellites/{id}/approval")
                         .hasRole("OPERATOR")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/satellites/{id}/track")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/shippers/**")
                         .hasRole("SHIPPER")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/satellites/{id}")
-                        .hasRole("SHIPPER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/satellites/{id}")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/satellites")
                         .hasRole("SHIPPER")
 
-                        .requestMatchers(HttpMethod.GET, "/api/v1/inspections/{id}")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/inspections/{id}")
                         .hasAnyRole("SHIPPER", "OPERATOR")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/inspections")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/inspections/**")
                         .hasRole("OPERATOR")
 
                         .anyRequest().authenticated())
+                .addFilterBefore(internalApiKeyFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

@@ -27,8 +27,17 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(
-            HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain)
             throws IOException, ServletException {
+
+        String path = request.getRequestURI();
+
+        if (request.getRequestURI().startsWith("/internal/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         String authHeader = request.getHeader("Authorization");
 
@@ -44,7 +53,6 @@ public class SecurityFilter extends OncePerRequestFilter {
             JwtUserData userData = user.get();
 
             if ("OPERATOR".equals(userData.role())) {
-                String path = request.getRequestURI();
 
                 boolean allowedForUnapprovedOperator = path.equals("/api/v1/operators/me") ||
                         path.matches("/api/v1/operators/\\d+/reapply");

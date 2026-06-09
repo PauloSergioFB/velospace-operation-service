@@ -1,5 +1,6 @@
 package br.com.fiap.javaadv.VeloSpace.service.SatelliteStatus;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import br.com.fiap.javaadv.VeloSpace.infrastructure.exceptions.NotFoundException;
@@ -14,6 +15,7 @@ public class SatelliteStatusServiceImpl implements SatelliteStatusService<Satell
     private final SatelliteStatusRepository satelliteRepository;
 
     @Override
+    @Cacheable(value = "satellite-status", key = "#code")
     public SatelliteStatus findByCode(String code) {
         return satelliteRepository.findByCode(code)
                 .orElseThrow(() -> new NotFoundException(
@@ -21,6 +23,7 @@ public class SatelliteStatusServiceImpl implements SatelliteStatusService<Satell
     }
 
     @Override
+    @Cacheable(value = "satellite-status-required", key = "#code")
     public SatelliteStatus getRequiredByCode(String code) {
         return satelliteRepository.findByCode(code)
                 .orElseThrow(() -> new IllegalStateException(
